@@ -1,0 +1,122 @@
+<title>Smell Presenter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+/>
+<link rel="stylesheet" href="styles.css" />
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Smell Presenter</h1>
+      <p class="sub" id="p">
+        Three ways to read one set of code-quality findings.
+      </p>
+    </div>
+
+    <div class="controls">
+      <label class="field">
+        <span>Project</span>
+        <select id="projectSelect"></select>
+      </label>
+      <label class="field">
+        <span>Source</span>
+        <select id="sourceSelect"></select>
+      </label>
+      <label class="field">
+        <span>Min confidence <output id="confOut">any</output></span>
+        <input
+          type="range"
+          id="confRange"
+          min="0"
+          max="1"
+          step="0.05"
+          value="0"
+        />
+      </label>
+      <label class="field grow">
+        <span>Search</span>
+        <input type="search" id="searchBox" placeholder="File, rule, or text" />
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="bugsOnly" />
+        <span>Bugs only</span>
+      </label>
+      <label class="file-btn">
+        <input
+          type="file"
+          id="fileInput"
+          accept=".json,application/json"
+          multiple
+        />
+        <span>Load or drop findings JSON</span>
+      </label>
+    </div>
+  </header>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <section class="summary" id="summary" aria-label="Summary"></section>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-triage" data-view="triage" aria-selected="true">
+      Triage table
+    </button>
+    <button
+      role="tab"
+      id="tab-remedies"
+      data-view="remedies"
+      aria-selected="false"
+    >
+      Remedy map
+    </button>
+    <button
+      role="tab"
+      id="tab-heatmap"
+      data-view="heatmap"
+      aria-selected="false"
+    >
+      File heatmap
+    </button>
+  </nav>
+
+  <main>
+    <section
+      class="view"
+      id="view-triage"
+      role="tabpanel"
+      aria-labelledby="tab-triage"
+    ></section>
+    <section
+      class="view"
+      id="view-remedies"
+      role="tabpanel"
+      aria-labelledby="tab-remedies"
+      hidden
+    ></section>
+    <section
+      class="view"
+      id="view-heatmap"
+      role="tabpanel"
+      aria-labelledby="tab-heatmap"
+      hidden
+    ></section>
+  </main>
+</div>
+
+<div class="drop-overlay" id="dropOverlay" hidden>
+  <p>Drop a findings JSON to open it</p>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Finding detail" hidden>
+  <div class="drawer-head">
+    <button class="link-btn" id="drawerBack" hidden>Back to list</button>
+    <button class="icon-btn" id="drawerClose" aria-label="Close">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script src="app.js"></script>

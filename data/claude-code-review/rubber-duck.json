@@ -1,0 +1,1239 @@
+{
+  "project": "rubber-duck",
+  "remedies": [
+    {
+      "id": "fix-bugs",
+      "title": "Fix the bugs, each with a test",
+      "effort": "S"
+    },
+    { "id": "typed-config", "title": "One typed config parser", "effort": "M" },
+    { "id": "duck-registry", "title": "Duck builder registry", "effort": "S" },
+    { "id": "tool-result", "title": "One ToolResult type", "effort": "M" },
+    {
+      "id": "shared-cache",
+      "title": "Shared cache replay and expiry",
+      "effort": "S"
+    },
+    {
+      "id": "async-io",
+      "title": "Move blocking I/O off the event loop",
+      "effort": "S"
+    },
+    { "id": "inject-deps", "title": "Inject external clients", "effort": "M" },
+    {
+      "id": "split-commands",
+      "title": "Split the admin commands",
+      "effort": "S"
+    },
+    { "id": "break-up", "title": "Break up long functions", "effort": "M" },
+    {
+      "id": "storage-boundary",
+      "title": "Decouple storage from workflows",
+      "effort": "S"
+    },
+    {
+      "id": "error-policy",
+      "title": "One error-handling policy",
+      "effort": "S"
+    },
+    {
+      "id": "shared-helpers",
+      "title": "Extract small shared helpers",
+      "effort": "S"
+    },
+    {
+      "id": "delete-dead",
+      "title": "Delete dead code and stale comments",
+      "effort": "S"
+    }
+  ],
+  "filters": [
+    {
+      "source": "claude_Opus_5_5_review",
+      "checked": [
+        "src/main.py",
+        "src/duck_orchestrator.py",
+        "src/rubber_duck_app.py",
+        "src/bot/discord_bot.py",
+        "src/commands/command.py",
+        "src/commands/bot_commands.py",
+        "src/conversation/conversation.py",
+        "src/conversation/threads.py",
+        "src/gen_ai/gen_ai.py",
+        "src/gen_ai/build.py",
+        "src/armory/armory.py",
+        "src/armory/tools.py",
+        "src/armory/talk_tool.py",
+        "src/armory/python_tools.py",
+        "src/armory/tool_cache.py",
+        "src/metrics/feedback.py",
+        "src/metrics/feedback_manager.py",
+        "src/metrics/reporter.py",
+        "src/storage/sql_metrics.py",
+        "src/storage/sql_connection.py",
+        "src/storage/sql_quest.py",
+        "src/storage/serializer.py",
+        "src/utils/send_email.py",
+        "src/utils/message_utils.py",
+        "src/utils/retry.py",
+        "src/utils/protocols.py",
+        "src/utils/logger.py",
+        "src/utils/feedback_notifier.py",
+        "src/utils/cache_cleaner.py",
+        "src/utils/persistent_queue.py",
+        "src/utils/zip_utils.py",
+        "src/utils/config_loader.py",
+        "src/utils/python_exec_container.py",
+        "src/utils/resource_staging.py",
+        "src/workflows/registration.py",
+        "src/workflows/registration_workflow.py",
+        "src/workflows/assignment_feedback_workflow.py",
+        "src/workflows/parsing_utils.py",
+        "src/workflows/debugging_duck/conversation.py",
+        "src/workflows/debugging_duck/debugging_practice_duck_workflow.py",
+        "src/workflows/debugging_duck/messaging.py",
+        "src/workflows/debugging_duck/rubric_build.py",
+        "tests/"
+      ],
+      "passed": [
+        "src/rubber_duck_app.py",
+        "src/commands/bot_commands.py",
+        "src/conversation/conversation.py",
+        "src/conversation/threads.py",
+        "src/gen_ai/build.py",
+        "src/metrics/feedback_manager.py",
+        "src/storage/sql_connection.py",
+        "src/utils/message_utils.py",
+        "src/utils/logger.py",
+        "src/utils/cache_cleaner.py",
+        "src/utils/persistent_queue.py",
+        "src/utils/config_loader.py",
+        "src/workflows/registration_workflow.py",
+        "src/workflows/debugging_duck/conversation.py",
+        "src/workflows/debugging_duck/messaging.py"
+      ],
+      "notes": [
+        "Manual ETC review of src/. Probability is null for verified findings and below 1 for likely ones."
+      ],
+      "usage": null,
+      "findings": [
+        {
+          "file": "src/workflows/registration.py",
+          "start_line": 109,
+          "end_line": 109,
+          "rule": "Silent typo",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Roles are never recorded because the code writes `.roles` instead of `.roles_assigned`",
+          "detail": "The dataclass has no slots, so Python accepts the typo and adds a new attribute. The progress summary then always says no roles were assigned. `@dataclass(slots=True)` would make the typo raise.",
+          "severity": "high",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 540,
+          "end_line": 552,
+          "rule": "Misleading name",
+          "source": "claude_Opus_5_5_review",
+          "probability": 0.85,
+          "related": [
+            { "file": "src/utils/logger.py", "start_line": 43, "end_line": 54 },
+            {
+              "file": "src/commands/command.py",
+              "start_line": 192,
+              "end_line": 192
+            }
+          ],
+          "message": "`!log` likely always replies \"No log files found\"",
+          "detail": "`add_file_handler` returns nothing, so `log_dir` is always None. Line 552 passes the log file path as the log directory, and `LogCommand` globs that file path for `*.log*`.",
+          "severity": "high",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/utils/python_exec_container.py",
+          "start_line": 200,
+          "end_line": 201,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Multi-subplot figures are described to the LLM as raw tuples",
+          "detail": "The loop formats each `(filename, description)` tuple whole, producing `subplot 0: ('fig_ax0.json', 'line plot...')`.",
+          "severity": "medium",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/workflows/assignment_feedback_workflow.py",
+          "start_line": 222,
+          "end_line": 222,
+          "rule": "In-band sentinel",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/assignment_feedback_workflow.py",
+              "start_line": 248,
+              "end_line": 248
+            }
+          ],
+          "message": "Any report section containing the word MISSING is graded as a missing header",
+          "detail": "A missing section is marked by writing \"MISSING\" into the section text. A student who writes that word gets an automatic fail on the rubric item.",
+          "severity": "high",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/workflows/debugging_duck/debugging_practice_duck_workflow.py",
+          "start_line": 94,
+          "end_line": 96,
+          "rule": "Late validation",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 199, "end_line": 213 }
+          ],
+          "message": "A missing subprocess agent crashes the duck mid-conversation",
+          "detail": "The three subprocess agents default to None, but `__call__` uses them without checking. A config that omits one fails with AttributeError in front of a student instead of at startup.",
+          "severity": "medium",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/duck_orchestrator.py",
+          "start_line": 24,
+          "end_line": 33,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/duck_orchestrator.py",
+              "start_line": 88,
+              "end_line": 88
+            }
+          ],
+          "message": "The error message is built wrong and then thrown away",
+          "detail": "Adjacent string literals join before `.join` runs, so the traceback text becomes the separator. Line 88 discards the result anyway.",
+          "severity": "low",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/storage/sql_metrics.py",
+          "start_line": 133,
+          "end_line": 133,
+          "rule": "Unhandled edge case",
+          "source": "claude_Opus_5_5_review",
+          "probability": 0.9,
+          "related": [],
+          "message": "`!messages`, `!usage`, and `!feedback` fail on an empty table",
+          "detail": "`next(records)` raises StopIteration when the table has no rows. The handler re-raises it, so a fresh database makes the export commands error.",
+          "severity": "low",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "src/metrics/reporter.py",
+          "start_line": 104,
+          "end_line": 104,
+          "rule": "Ignored return value",
+          "source": "claude_Opus_5_5_review",
+          "probability": 0.7,
+          "related": [
+            {
+              "file": "src/metrics/feedback.py",
+              "start_line": 37,
+              "end_line": 37
+            }
+          ],
+          "message": "`wrap_steps` result is discarded, so the call probably does nothing",
+          "detail": "`feedback.py` assigns the wrapped object returned by `wrap_steps`. The Reporter ignores it.",
+          "severity": "low",
+          "bug": true,
+          "remedy": "fix-bugs"
+        },
+        {
+          "file": "tests/",
+          "start_line": null,
+          "end_line": null,
+          "rule": "Missing tests",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/registration.py",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "file": "src/workflows/assignment_feedback_workflow.py",
+              "start_line": null,
+              "end_line": null
+            },
+            { "file": "src/main.py", "start_line": null, "end_line": null },
+            {
+              "file": "src/commands/command.py",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "message": "Registration, assignment feedback, config wiring, and admin commands have no tests",
+          "detail": "Most of the bugs in this review live in these four untested areas.",
+          "severity": "medium",
+          "remedy": "fix-bugs"
+        },
+
+        {
+          "file": "src/main.py",
+          "start_line": 126,
+          "end_line": 144,
+          "rule": "Duplicated knowledge",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 251, "end_line": 275 },
+            { "file": "src/main.py", "start_line": 478, "end_line": 482 },
+            {
+              "file": "src/utils/feedback_notifier.py",
+              "start_line": 72,
+              "end_line": 101
+            },
+            {
+              "file": "src/metrics/reporter.py",
+              "start_line": 113,
+              "end_line": 122
+            }
+          ],
+          "message": "Config traversal of servers, channels, and ducks is written five times",
+          "detail": "Each copy handles \"the duck is a name or an inline dict\" a little differently. Changing the config shape means five edits that already disagree.",
+          "severity": "high",
+          "remedy": "typed-config"
+        },
+        {
+          "file": "src/utils/feedback_notifier.py",
+          "start_line": 87,
+          "end_line": 87,
+          "rule": "Missing validation",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 255, "end_line": 255 }
+          ],
+          "message": "A channel with no duck raises KeyError here but is skipped in main.py",
+          "detail": "This copy indexes `channel_cfg['duck']` directly while main.py uses `.get`.",
+          "severity": "medium",
+          "remedy": "typed-config"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 159,
+          "end_line": 160,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Config and settings travel everywhere as raw dicts",
+          "detail": "Every consumer indexes `settings['...']` and finds out about missing keys at runtime.",
+          "severity": "medium",
+          "remedy": "typed-config"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 162,
+          "end_line": 227,
+          "rule": "Type switch",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 285, "end_line": 285 },
+            {
+              "file": "src/utils/feedback_notifier.py",
+              "start_line": 91,
+              "end_line": 91
+            }
+          ],
+          "message": "Adding a duck type means editing an if/elif chain plus two string checks",
+          "detail": "`build_ducks` branches on `duck_type`. The string 'conversation_review' is also checked in two other places.",
+          "severity": "high",
+          "remedy": "duck-registry"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 199,
+          "end_line": 213,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "The same conditional `build_agent` call is written three times",
+          "severity": "low",
+          "remedy": "duck-registry"
+        },
+
+        {
+          "file": "src/armory/armory.py",
+          "start_line": 51,
+          "end_line": 86,
+          "rule": "Hidden contract",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/gen_ai/gen_ai.py",
+              "start_line": 169,
+              "end_line": 184
+            },
+            { "file": "src/armory/tools.py", "start_line": 15, "end_line": 18 },
+            {
+              "file": "src/utils/protocols.py",
+              "start_line": 104,
+              "end_line": 106
+            }
+          ],
+          "message": "Three separate ways to say a tool finished the response",
+          "detail": "Function attributes (`complete_response`, `sends_image`), the `ConcludesResponse` wrapper, and a `(result, bool)` tuple all carry the same signal. `_run_tool` depends on the tuple shape and builds it by hand on errors.",
+          "severity": "high",
+          "remedy": "tool-result"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 355,
+          "end_line": 355,
+          "rule": "Hidden contract",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/commands/command.py",
+              "start_line": 302,
+              "end_line": 302
+            }
+          ],
+          "message": "A private `_cache_source` attribute is attached at runtime and read elsewhere",
+          "detail": "Neither cache class declares the attribute. CacheCommand reads it with `getattr` and falls back to \"unknown\".",
+          "severity": "medium",
+          "remedy": "shared-cache"
+        },
+        {
+          "file": "src/armory/tool_cache.py",
+          "start_line": 103,
+          "end_line": 148,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/armory/tool_cache.py",
+              "start_line": 264,
+              "end_line": 315
+            }
+          ],
+          "message": "Both cache backends copy the same replay logic",
+          "severity": "medium",
+          "remedy": "shared-cache"
+        },
+        {
+          "file": "src/armory/tool_cache.py",
+          "start_line": 113,
+          "end_line": 116,
+          "rule": "Duplicated knowledge",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/armory/tool_cache.py",
+              "start_line": 274,
+              "end_line": 277
+            }
+          ],
+          "message": "The expiry policy (10 hits, 548 days) lives in two places",
+          "detail": "Changing the TTL means editing both backends.",
+          "severity": "medium",
+          "remedy": "shared-cache"
+        },
+
+        {
+          "file": "src/bot/discord_bot.py",
+          "start_line": 225,
+          "end_line": 233,
+          "rule": "Blocking call in async",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/armory/tool_cache.py",
+              "start_line": 429,
+              "end_line": 429
+            },
+            {
+              "file": "src/storage/sql_metrics.py",
+              "start_line": 76,
+              "end_line": 127
+            }
+          ],
+          "message": "Blocking HTTP, OpenAI, and SQL calls freeze every open conversation",
+          "detail": "`requests.get`, a synchronous OpenAI call in the cache key builder, and synchronous SQL inside async record methods all run on the event loop.",
+          "severity": "high",
+          "remedy": "async-io"
+        },
+        {
+          "file": "src/utils/resource_staging.py",
+          "start_line": 31,
+          "end_line": 31,
+          "rule": "Hidden dependency",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/gen_ai/gen_ai.py",
+              "start_line": 82,
+              "end_line": 82
+            },
+            {
+              "file": "src/utils/send_email.py",
+              "start_line": 14,
+              "end_line": 27
+            }
+          ],
+          "message": "External clients are built inside the code instead of passed in",
+          "detail": "A boto3 client is created at import time, AIClient builds its own OpenAI client, and EmailSender reads environment variables in its constructor. Tests can't swap any of them.",
+          "severity": "medium",
+          "remedy": "inject-deps"
+        },
+        {
+          "file": "src/storage/serializer.py",
+          "start_line": 4,
+          "end_line": 7,
+          "rule": "Inverted dependency",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "The storage layer imports types from one specific workflow",
+          "detail": "Every new pydantic step type requires an edit in storage.",
+          "severity": "medium",
+          "remedy": "storage-boundary"
+        },
+        {
+          "file": "src/storage/sql_quest.py",
+          "start_line": 25,
+          "end_line": 64,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 10, "end_line": 10 }
+          ],
+          "message": "A second SqlBlobStorage exists next to Quest's own",
+          "detail": "main.py imports Quest's version. This copy carries a migrate TODO, and its `read_blob` loads every row in the namespace to find one key.",
+          "severity": "medium",
+          "remedy": "storage-boundary"
+        },
+        {
+          "file": "src/utils/retry.py",
+          "start_line": 16,
+          "end_line": 20,
+          "rule": "Stringly-typed check",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/gen_ai/gen_ai.py", "start_line": 96, "end_line": 99 }
+          ],
+          "message": "A Discord error check matches class names and is reused for OpenAI retries",
+          "severity": "low",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/workflows/debugging_duck/debugging_practice_duck_workflow.py",
+          "start_line": 99,
+          "end_line": 99,
+          "rule": "Inconsistent convention",
+          "source": "claude_Opus_5_5_review",
+          "probability": 0.6,
+          "related": [],
+          "message": "This workflow doesn't wrap `send_message` in a Quest step",
+          "detail": "Every other workflow does. If Quest replays this workflow after a restart, it may resend messages.",
+          "severity": "medium"
+        },
+
+        {
+          "file": "src/main.py",
+          "start_line": 436,
+          "end_line": 517,
+          "rule": "God module",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "main.py builds every object and also parses config, dedupes caches, and builds the armory",
+          "detail": "`_main` nests five context managers deep.",
+          "severity": "medium",
+          "remedy": "break-up"
+        },
+        {
+          "file": "src/workflows/debugging_duck/debugging_practice_duck_workflow.py",
+          "start_line": 226,
+          "end_line": 311,
+          "rule": "Deep nesting",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`__call__` nests try, for, for, while, and an if/elif chain",
+          "severity": "medium",
+          "remedy": "break-up"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 147,
+          "end_line": 155,
+          "rule": "Long parameter list",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 235, "end_line": 243 },
+            { "file": "src/gen_ai/gen_ai.py", "start_line": 32, "end_line": 35 }
+          ],
+          "message": "Seven parameters threaded through two builders; RecordUsage takes nine",
+          "severity": "low"
+        },
+        {
+          "file": "src/commands/command.py",
+          "start_line": 337,
+          "end_line": 507,
+          "rule": "Long function",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`CacheCommand.execute` is 170 lines covering four subcommands",
+          "severity": "medium",
+          "remedy": "split-commands"
+        },
+        {
+          "file": "src/commands/command.py",
+          "start_line": 346,
+          "end_line": 451,
+          "rule": "Type switch",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Cache subcommands dispatch through an if chain on `cmd_parts[1]`",
+          "severity": "low",
+          "remedy": "split-commands"
+        },
+        {
+          "file": "src/commands/command.py",
+          "start_line": 27,
+          "end_line": 72,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Three metric commands differ only in one method call and one filename",
+          "severity": "medium",
+          "remedy": "split-commands"
+        },
+        {
+          "file": "src/commands/command.py",
+          "start_line": 356,
+          "end_line": 356,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/commands/command.py",
+              "start_line": 413,
+              "end_line": 413
+            },
+            {
+              "file": "src/commands/command.py",
+              "start_line": 448,
+              "end_line": 448
+            },
+            {
+              "file": "src/commands/command.py",
+              "start_line": 486,
+              "end_line": 486
+            }
+          ],
+          "message": "The entry/entries plural logic is written four times",
+          "severity": "low",
+          "remedy": "split-commands"
+        },
+        {
+          "file": "src/workflows/registration.py",
+          "start_line": 294,
+          "end_line": 393,
+          "rule": "Long function",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`assign_roles` repeats fetch-member, add-roles, and Forbidden handling in two branches",
+          "severity": "medium",
+          "remedy": "break-up"
+        },
+        {
+          "file": "src/workflows/registration.py",
+          "start_line": 326,
+          "end_line": 326,
+          "rule": "Copy-paste error",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/registration.py",
+              "start_line": 377,
+              "end_line": 377
+            }
+          ],
+          "message": "Role permission errors say \"Insufficient permissions to set nickname\"",
+          "severity": "low",
+          "remedy": "break-up"
+        },
+        {
+          "file": "src/metrics/feedback.py",
+          "start_line": 43,
+          "end_line": 43,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/storage/sql_metrics.py",
+              "start_line": 67,
+              "end_line": 67
+            }
+          ],
+          "message": "A skipped score is the string 'nan' written into a BigInteger column",
+          "severity": "medium"
+        },
+        {
+          "file": "src/storage/sql_metrics.py",
+          "start_line": 49,
+          "end_line": 52,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Token counts are stored as strings",
+          "severity": "low"
+        },
+        {
+          "file": "src/utils/resource_staging.py",
+          "start_line": 216,
+          "end_line": 233,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Staging cases are strings like \"file: folder\"",
+          "severity": "low"
+        },
+        {
+          "file": "src/workflows/debugging_duck/rubric_build.py",
+          "start_line": 39,
+          "end_line": 78,
+          "rule": "Primitive obsession",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Rubrics and exercises are `dict[str, Any]` everywhere",
+          "severity": "low"
+        },
+        {
+          "file": "src/workflows/assignment_feedback_workflow.py",
+          "start_line": 150,
+          "end_line": 150,
+          "rule": "Unvalidated parse",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/assignment_feedback_workflow.py",
+              "start_line": 235,
+              "end_line": 235
+            }
+          ],
+          "message": "Agent output is parsed with `json.loads` instead of `output_format=`",
+          "detail": "`run_agent` already validates structured output against a pydantic model when given one.",
+          "severity": "medium"
+        },
+
+        {
+          "file": "src/main.py",
+          "start_line": 428,
+          "end_line": 433,
+          "rule": "Swallowed exception",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`main()` catches every exception and prints it",
+          "severity": "medium",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/utils/zip_utils.py",
+          "start_line": 6,
+          "end_line": 25,
+          "rule": "Swallowed exception",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Export errors print and return None, so the crash happens later in `discord.File`",
+          "severity": "medium",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/utils/send_email.py",
+          "start_line": 53,
+          "end_line": 55,
+          "rule": "Swallowed exception",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/utils/send_email.py",
+              "start_line": 75,
+              "end_line": 76
+            }
+          ],
+          "message": "SES failures are logged at info level without the exception",
+          "detail": "Lines 75-76 also catch an exception only to re-raise it.",
+          "severity": "low",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/gen_ai/gen_ai.py",
+          "start_line": 317,
+          "end_line": 323,
+          "rule": "Redundant handler",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Nine named OpenAI exceptions, then `except Exception` doing the same thing",
+          "severity": "low",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/utils/protocols.py",
+          "start_line": 61,
+          "end_line": 63,
+          "rule": "Control-flow exception",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`ConversationComplete` subclasses BaseException with no comment saying why",
+          "severity": "low",
+          "remedy": "error-policy"
+        },
+        {
+          "file": "src/utils/retry.py",
+          "start_line": 23,
+          "end_line": 53,
+          "rule": "Convoluted logic",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`retry_async` calls `should_retry` twice with overlapping conditions",
+          "severity": "low",
+          "remedy": "error-policy"
+        },
+
+        {
+          "file": "src/main.py",
+          "start_line": 398,
+          "end_line": 404,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/commands/command.py",
+              "start_line": 292,
+              "end_line": 298
+            }
+          ],
+          "message": "Cache dedupe by `id` is written twice",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/workflows/assignment_feedback_workflow.py",
+          "start_line": 83,
+          "end_line": 84,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/assignment_feedback_workflow.py",
+              "start_line": 98,
+              "end_line": 99
+            },
+            {
+              "file": "src/workflows/debugging_duck/rubric_build.py",
+              "start_line": 23,
+              "end_line": 24
+            }
+          ],
+          "message": "Rubric path string-to-list normalization appears three times",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/utils/feedback_notifier.py",
+          "start_line": 30,
+          "end_line": 51,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/utils/cache_cleaner.py",
+              "start_line": 16,
+              "end_line": 35
+            }
+          ],
+          "message": "The daily scheduler loop exists twice",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/workflows/registration.py",
+          "start_line": 151,
+          "end_line": 151,
+          "rule": "Magic numbers",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/registration.py",
+              "start_line": 162,
+              "end_line": 162
+            },
+            {
+              "file": "src/workflows/registration.py",
+              "start_line": 299,
+              "end_line": 299
+            }
+          ],
+          "message": "`ctx.timeout or 300` appears three times",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/armory/talk_tool.py",
+          "start_line": 61,
+          "end_line": 78,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`send_text_file` and `send_json_file` are identical",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/utils/protocols.py",
+          "start_line": 31,
+          "end_line": 32,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/gen_ai/gen_ai.py", "start_line": 38, "end_line": 39 }
+          ],
+          "message": "The SendMessage protocol is defined twice",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/storage/sql_metrics.py",
+          "start_line": 12,
+          "end_line": 13,
+          "rule": "Duplicated knowledge",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/commands/command.py",
+              "start_line": 256,
+              "end_line": 256
+            }
+          ],
+          "message": "Mountain time is hardcoded under two different zone names",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/main.py",
+          "start_line": 311,
+          "end_line": 311,
+          "rule": "Duplicated knowledge",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/armory/tool_cache.py",
+              "start_line": 395,
+              "end_line": 395
+            }
+          ],
+          "message": "The default model name is hardcoded twice",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/utils/python_exec_container.py",
+          "start_line": 182,
+          "end_line": 186,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/utils/python_exec_container.py",
+              "start_line": 214,
+              "end_line": 218
+            }
+          ],
+          "message": "Plot description formatting is written twice",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/workflows/parsing_utils.py",
+          "start_line": 7,
+          "end_line": 10,
+          "rule": "Duplicated code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/workflows/assignment_feedback_workflow.py",
+              "start_line": 17,
+              "end_line": 21
+            }
+          ],
+          "message": "The same type aliases are declared in two modules",
+          "severity": "low",
+          "remedy": "shared-helpers"
+        },
+        {
+          "file": "src/metrics/reporter.py",
+          "start_line": 124,
+          "end_line": 132,
+          "rule": "Type switch",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`select_dataframe` branches on table name strings",
+          "severity": "low"
+        },
+
+        {
+          "file": "src/commands/command.py",
+          "start_line": 137,
+          "end_line": 163,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`BashExecuteCommand` is never registered and runs shell commands with `shell=True`",
+          "severity": "medium",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/gen_ai/gen_ai.py",
+          "start_line": 334,
+          "end_line": 339,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`_check_for_history` is never called",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/armory/tools.py",
+          "start_line": 7,
+          "end_line": 7,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Module-level `_tools` dict is never used",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/python_exec_container.py",
+          "start_line": 487,
+          "end_line": 493,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`is_text` and `is_s3` are never called",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/workflows/parsing_utils.py",
+          "start_line": 66,
+          "end_line": 71,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`get_expected_md_format` is never called",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/protocols.py",
+          "start_line": 35,
+          "end_line": 44,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/bot/discord_bot.py",
+              "start_line": 188,
+              "end_line": 194
+            }
+          ],
+          "message": "`EditMessage`, `ReportError`, and `DiscordBot.edit_message` are unused",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/resource_staging.py",
+          "start_line": 268,
+          "end_line": 299,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "A debug listing function with a hardcoded bucket ships in the module",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/storage/sql_metrics.py",
+          "start_line": 148,
+          "end_line": 150,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/metrics/reporter.py",
+              "start_line": 130,
+              "end_line": 130
+            }
+          ],
+          "message": "`get_message` is a compatibility alias with one internal caller",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/python_exec_container.py",
+          "start_line": 204,
+          "end_line": 204,
+          "rule": "Dead code",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            { "file": "src/main.py", "start_line": 531, "end_line": 531 }
+          ],
+          "message": "Commented-out code left in place",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/feedback_notifier.py",
+          "start_line": 33,
+          "end_line": 33,
+          "rule": "Stale comment",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Docstring says 9:00 AM, but the hour comes from config",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/armory/python_tools.py",
+          "start_line": 80,
+          "end_line": 81,
+          "rule": "Stale comment",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "Comment says +3, code adds 4",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/metrics/feedback.py",
+          "start_line": 128,
+          "end_line": 128,
+          "rule": "Stale comment",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "TAs are told \"five minutes\", but the timeout comes from context",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/utils/python_exec_container.py",
+          "start_line": 141,
+          "end_line": 151,
+          "rule": "Stale comment",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "`_write_file` docstring describes a dict-based API that doesn't exist",
+          "severity": "low",
+          "remedy": "delete-dead"
+        },
+        {
+          "file": "src/metrics/reporter.py",
+          "start_line": 102,
+          "end_line": 102,
+          "rule": "Misleading name",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [
+            {
+              "file": "src/metrics/reporter.py",
+              "start_line": 21,
+              "end_line": 21
+            }
+          ],
+          "message": "A parameter named `SQLMetricsHandler` shadows its own class",
+          "detail": "The same file also has `fancy_preproccesing`, which is misspelled and doesn't say what it does.",
+          "severity": "low"
+        },
+        {
+          "file": "src/workflows/debugging_duck/debugging_practice_duck_workflow.py",
+          "start_line": 47,
+          "end_line": 56,
+          "rule": "Misleading name",
+          "source": "claude_Opus_5_5_review",
+          "probability": null,
+          "related": [],
+          "message": "The actor labeled \"Duck\" is relabeled \"Student\" when formatted",
+          "severity": "low"
+        }
+      ]
+    }
+  ]
+}
+

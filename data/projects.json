@@ -1,0 +1,20 @@
+[
+  {
+    "id": "claude-code-review/rubber-duck",
+    "label": "rubber-duck",
+    "group": "claude-code-review",
+    "file": "data/claude-code-review/rubber-duck.json"
+  },
+  {
+    "id": "jev-linter-complete/jev-demo",
+    "label": "jev-demo",
+    "group": "jev-linter-complete",
+    "file": "data/jev-linter-complete/jev-demo.json"
+  },
+  {
+    "id": "jev-linter-complete/rubber-duck",
+    "label": "rubber-duck",
+    "group": "jev-linter-complete",
+    "file": "data/jev-linter-complete/rubber-duck.json"
+  }
+]

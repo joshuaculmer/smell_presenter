@@ -1,0 +1,45 @@
+{
+  "Duplicated knowledge":        { "category": "duplication", "severity": "medium", "remedy_text": "Extract the shared knowledge into one place" },
+  "Duplicated code":             { "category": "duplication", "severity": "medium", "remedy_text": "Extract the shared code into one function" },
+  "Magic numbers":               { "category": "duplication", "severity": "low",    "remedy_text": "Name the constant" },
+  "PLR2004":                     { "category": "duplication", "severity": "low",    "remedy_text": "Name the constant" },
+
+  "Type switch":                 { "category": "switches",    "severity": "medium", "remedy_text": "Replace the branch chain with a lookup table" },
+  "Deep nesting":                { "category": "switches",    "severity": "medium", "remedy_text": "Extract inner blocks into named functions" },
+
+  "Hidden contract":             { "category": "coupling",    "severity": "medium", "remedy_text": "Make the contract an explicit type" },
+  "Hidden dependency":           { "category": "coupling",    "severity": "medium", "remedy_text": "Pass the dependency in" },
+  "Missing dependency injection":{ "category": "coupling",    "severity": "low",    "remedy_text": "Pass the collaborator in" },
+  "Inverted dependency":         { "category": "coupling",    "severity": "medium", "remedy_text": "Move the type to the lower layer" },
+  "Stringly-typed check":        { "category": "coupling",    "severity": "low",    "remedy_text": "Check the type, not its name" },
+  "Blocking call in async":      { "category": "coupling",    "severity": "high",   "remedy_text": "Move blocking I/O off the event loop" },
+  "Inconsistent convention":     { "category": "coupling",    "severity": "medium", "remedy_text": "Pick one convention and apply it everywhere" },
+  "Side effects in unexpected places": { "category": "coupling", "severity": "medium", "remedy_text": "Separate queries from commands" },
+  "Law of Demeter":              { "category": "coupling",    "severity": "low",    "remedy_text": "Ask direct collaborators only" },
+
+  "God module":                  { "category": "size",        "severity": "medium", "remedy_text": "Split the module by responsibility" },
+  "Long function":               { "category": "size",        "severity": "medium", "remedy_text": "Split the function into steps" },
+  "Long parameter list":         { "category": "size",        "severity": "low",    "remedy_text": "Introduce a parameter object" },
+  "Primitive obsession":         { "category": "size",        "severity": "low",    "remedy_text": "Introduce a small type" },
+  "In-band sentinel":            { "category": "size",        "severity": "medium", "remedy_text": "Carry the state in its own field" },
+
+  "Silent typo":                 { "category": "errors",      "severity": "high",   "remedy_text": "Use slotted dataclasses so typos raise" },
+  "Late validation":             { "category": "errors",      "severity": "medium", "remedy_text": "Validate config at startup" },
+  "Missing validation":          { "category": "errors",      "severity": "medium", "remedy_text": "Validate input at the boundary" },
+  "Ignored return value":        { "category": "errors",      "severity": "low",    "remedy_text": "Use or remove the call" },
+  "Unvalidated parse":           { "category": "errors",      "severity": "medium", "remedy_text": "Parse into a validated model" },
+  "Unhandled edge case":         { "category": "errors",      "severity": "low",    "remedy_text": "Handle the empty case" },
+  "Swallowed exception":         { "category": "errors",      "severity": "medium", "remedy_text": "Log with detail and re-raise" },
+  "Redundant handler":           { "category": "errors",      "severity": "low",    "remedy_text": "Collapse to one handler" },
+  "Control-flow exception":      { "category": "errors",      "severity": "low",    "remedy_text": "Document or replace the exception" },
+  "Convoluted logic":            { "category": "errors",      "severity": "low",    "remedy_text": "Rewrite the condition once, plainly" },
+  "Missing tests":               { "category": "errors",      "severity": "medium", "remedy_text": "Add tests for the untested flow" },
+  "B905":                        { "category": "errors",      "severity": "low",    "remedy_text": "Pass strict= to zip()" },
+
+  "Dead code":                   { "category": "clarity",     "severity": "low",    "remedy_text": "Delete it" },
+  "Stale comment":               { "category": "clarity",     "severity": "low",    "remedy_text": "Update or delete the comment" },
+  "Misleading name":             { "category": "clarity",     "severity": "low",    "remedy_text": "Rename to match behavior" },
+  "Copy-paste error":            { "category": "clarity",     "severity": "low",    "remedy_text": "Correct the copied text" },
+  "Poor naming":                 { "category": "clarity",     "severity": "low",    "remedy_text": "Rename to say what it does" },
+  "Excessive comments":          { "category": "clarity",     "severity": "low",    "remedy_text": "Delete comments that restate code" }
+}
